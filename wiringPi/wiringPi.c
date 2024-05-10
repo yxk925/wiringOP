@@ -4036,6 +4036,8 @@ int waitForInterrupt (int pin, int mS)
 
 static void *interruptHandler (UNU void *arg)
 {
+	if (wiringPiDebug)
+		printf("[wiringPi]interruptHandler\n");
   int myPin ;
 
   (void)piHiPri (55) ;	// Only effective if we run as root
@@ -4043,9 +4045,14 @@ static void *interruptHandler (UNU void *arg)
   myPin   = pinPass ;
   pinPass = -1 ;
 
-  for (;;)
-    if (waitForInterrupt (myPin, -1) > 0)
+  for (;;) {
+	int inter = waitForInterrupt (myPin, -1);
+	if (wiringPiDebug)
+		printf("[wiringPi]waitForInterrupt returned:%d\n", inter);
+    if (inter > 0)
       isrFunctions [myPin] () ;
+  }
+
 
   return NULL ;
 }
@@ -4098,7 +4105,7 @@ int wiringPiISR (int pin, int mode, void (*function)(void))
     else
       modeS = "both" ;
 
-    sprintf (pinS, "%d", pin) ;
+    sprintf (pinS, "%d", bcmGpioPin) ;
 
     if ((pid = fork ()) < 0)	// Fail
       return wiringPiFailure (WPI_FATAL, "wiringPiISR: fork failed: %s\n", strerror (errno)) ;
