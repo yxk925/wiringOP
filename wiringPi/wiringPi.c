@@ -4431,15 +4431,16 @@ int wiringPiSetup (void)
 	//	Try /dev/mem. If that fails, then 
 	//	try /dev/gpiomem. If that fails then game over.
 	if ((fd = open ("/dev/mem", O_RDWR | O_SYNC | O_CLOEXEC)) < 0){
+		int err_1 = errno;
 		if ((fd = open ("/dev/gpiomem", O_RDWR | O_SYNC | O_CLOEXEC) ) >= 0){	// We're using gpiomem
 			piGpioBase   = 0 ;
 			usingGpioMem = TRUE ;
 		}
 		else
-			return wiringPiFailure (WPI_ALMOST, "wiringPiSetup: Unable to open /dev/mem or /dev/gpiomem: %s.\n"
+			return wiringPiFailure (WPI_ALMOST, "wiringPiSetup: Unable to open /dev/mem: %s or /dev/gpiomem: %s.\n"
 			"  Aborting your program because if it can not access the GPIO\n"
 			"  hardware then it most certianly won't work\n"
-			"  Try running with sudo?\n", strerror (errno)) ;
+			"  Try running with sudo?\n", strerror(err_1), strerror (errno)) ;
 	}
 
 	switch (OrangePiModel)
