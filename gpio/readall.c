@@ -1121,6 +1121,44 @@ static char * physNames_5PRO[64] =
 static int physToWpi_CM5[64] =
 {
 	-1,     //0
+	 0,  1, //1,2
+	 2,  3, //3,4
+	 4,  5, //5,6
+	 6,  7, //7,8
+	-1, -1, //9,10
+	-1, -1, //11,12
+	-1, -1, //13,14
+	-1, -1, //15,16
+	-1, -1, //17,18
+	-1, -1, //19,20
+	-1, -1, //21,22
+	-1, -1, //23,24
+	-1, -1, //25,26
+	-1, -1, //27,28
+	-1, -1, //29,30
+	-1, -1, //31,32
+	-1, -1, //33,34
+	-1, -1, //35,36
+	-1, -1, //37,38
+	-1, -1, //39,40
+
+	// Padding:
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // ... 56
+	-1, -1, -1, -1, -1, -1, -1,    					// ... 63
+};
+
+static char * physNames_CM5[64] =
+{
+	NULL,
+	"GPIO1_B3", "GPIO1_B1",
+	"GPIO1_B4", "GPIO1_B2",
+	"GPIO1_B7", "GPIO1_B6",
+	"GPIO4_B2", "GPIO4_B3",
+};
+
+static int physToWpi_CM5_TABLET[64] =
+{
+	-1,     //0
 	-1, -1, //1,2
 	 0, -1, //3,4
 	 1, -1, //5,6
@@ -1147,7 +1185,7 @@ static int physToWpi_CM5[64] =
 	-1, -1, -1, -1, -1, -1, -1,    					// ... 63
 };
 
-static char * physNames_CM5[64] =
+static char * physNames_CM5_TABLET[64] =
 {
 	NULL,
 	"    3.3V", "5V      ",
@@ -1289,6 +1327,60 @@ static char * physNames_CM4[64] =
 	"SPI3_RXD", "TXD.9   ",
 	"SPI3_CLK", "SPI3_CS1",
 	"     GND", "GPIO4_A7",
+	"   SDA.3", "SCL.3   ",
+	"   RXD.9", "GND     ",
+	"GPIO3_D4", "PWM11   ",
+	"GPIO3_D7", "GND     ",
+	"GPIO3_D0", "GPIO3_D5",
+	"GPIO3_D3", "GPIO3_D2",
+	"     GND", "GPIO3_D1",
+};
+
+static int physToWpi_3B[64] =
+{
+	-1,     //0
+	-1, -1, //1,2
+	 0, -1, //3,4
+	 1, -1, //5,6
+	 2,  3, //7,8
+	-1,  4, //9,10
+	 5,  6, //11,12
+	 7, -1, //13,14
+	 8,  9, //15,16
+	-1, 10, //17,18
+	11, -1, //19,20
+	12, 13, //21,22
+	14, 15, //23,24
+	-1, 16, //25,26
+	17, 18, //27,28
+	19, -1, //29,30
+	20, 21, //31,32
+	22, -1, //33,34
+	23, 24, //35,36
+	25, 26, //37,38
+	-1, 27, //39,40
+
+	// Padding:
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // ... 56
+	-1, -1, -1, -1, -1, -1, -1,    					// ... 63
+};
+
+static char * physNames_3B[64] =
+{
+	NULL,
+	"    3.3V", "5V      ",
+	"   SDA.2", "5V      ",
+	"   SCL.2", "GND     ",
+	"   PWM15", "RXD.2   ",
+	"     GND", "TXD.2   ",
+	"GPIO3_C6", "GPIO3_C7",
+	"GPIO4_A0", "GND     ",
+	"   TXD.7", "RXD.7   ",
+	"    3.3V", "GPIO4_A1",
+	"SPI3_TXD", "GND     ",
+	"SPI3_RXD", "TXD.9   ",
+	"SPI3_CLK", "SPI3_CS1",
+	"     GND", "GPIO3_D6",
 	"   SDA.3", "SCL.3   ",
 	"   RXD.9", "GND     ",
 	"GPIO3_D4", "PWM11   ",
@@ -1686,6 +1778,12 @@ void OrangePiReadAll(int model)
 			physNames =  physNames_CM5;
 			alts = alts_rk3588;
 			break;
+		case PI_MODEL_CM5_TABLET:
+			printf (" +------+-----+----------+--------+---+CM5 Tablet+---+--------+----------+-----+------+\n");
+			physToWpi =  physToWpi_CM5_TABLET;
+			physNames =  physNames_CM5_TABLET;
+			alts = alts_rk3588;
+			break;
 		case PI_MODEL_CM4:
 			printf (" +------+-----+----------+--------+---+  PI CM4  +---+--------+----------+-----+------+\n");
 			physToWpi =  physToWpi_CM4;
@@ -1694,9 +1792,13 @@ void OrangePiReadAll(int model)
 			break;
 		case PI_MODEL_3B:
 			printf (" +------+-----+----------+--------+---+   PI3B   +---+--------+----------+-----+------+\n");
-			physToWpi =  physToWpi_CM4;
-			physNames =  physNames_CM4;
+			physToWpi =  physToWpi_3B;
+			physNames =  physNames_3B;
 			alts = alts_rk3588;
+			if(0x20 & readR(RK3566_PMU_GRF_BASE + 0x144)) {
+				physToWpi =  physToWpi_CM4;
+				physNames =  physNames_CM4;
+			}
 			break;
 		case PI_MODEL_3_PLUS:
 			printf (" +------+-----+----------+--------+---+ PI3 PLUS +---+--------+----------+-----+------+\n");
@@ -1741,6 +1843,10 @@ void OrangePiReadAll(int model)
 		case PI_MODEL_5:
 		case PI_MODEL_5B:
 		case PI_MODEL_CM5:
+			for (pin = 1 ; pin <= 8; pin += 2)
+				readallPhys(pin);
+			break;
+		case PI_MODEL_CM5_TABLET:
 			for (pin = 1 ; pin <= 26; pin += 2)
 				readallPhys(pin);
 			break;
@@ -1830,6 +1936,9 @@ void OrangePiReadAll(int model)
 			break;
 		case PI_MODEL_CM5:
 			printf (" +------+-----+----------+--------+---+  PI CM5  +---+--------+----------+-----+------+\n");
+			break;
+		case PI_MODEL_CM5_TABLET:
+			printf (" +------+-----+----------+--------+---+CM5 Tablet+---+--------+----------+-----+------+\n");
 			break;
 		case PI_MODEL_CM4:
 			printf (" +------+-----+----------+--------+---+  PI CM4  +---+--------+----------+-----+------+\n");
